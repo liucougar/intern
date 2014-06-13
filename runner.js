@@ -34,9 +34,9 @@ else {
 		'./lib/util',
 		'./lib/Suite',
 		'./lib/ClientSuite',
-		'./lib/leadfoot/Server',
-		'./lib/leadfoot/ProxiedSession',
-		'./lib/leadfoot/Command',
+		'dojo/node!leadfoot/Server',
+		'dojo/node!leadfoot/ProxiedSession',
+		'dojo/node!leadfoot/Command',
 		'dojo/lang',
 		'dojo/topic',
 		'dojo/request',
@@ -74,8 +74,8 @@ else {
 					name: args.config,
 					'idle-timeout': 60
 				},
-				launcher: 'NullLauncher',
-				launcherOptions: {
+				tunnel: 'NullTunnel',
+				tunnelOptions: {
 					tunnelId: '' + Date.now()
 				},
 				loader: {},
@@ -110,12 +110,12 @@ else {
 				}
 			}
 
-			if (config.launcher.indexOf('/') === -1) {
-				config.launcher = './lib/digdug/' + config.launcher;
+			if (config.tunnel.indexOf('/') === -1) {
+				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
 			}
 
-			config.launcherOptions.port = config.webdriver.port;
-			config.launcherOptions.servers = (config.launcherOptions.servers || []).concat(config.proxyUrl);
+			config.tunnelOptions.port = config.webdriver.port;
+			config.tunnelOptions.servers = (config.tunnelOptions.servers || []).concat(config.proxyUrl);
 
 			// Using concat to convert to an array since `args.reporters` might be an array or a scalar
 			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
@@ -127,26 +127,26 @@ else {
 				return reporterModuleId;
 			});
 
-			require([ config.launcher ].concat(args.reporters), function (Launcher) {
+			require([ config.tunnel ].concat(args.reporters), function (Tunnel) {
 				/*jshint maxcomplexity:13 */
 
-				var launcher = new Launcher(config.launcherOptions);
-				launcher.on('downloadprogress', function (progress) {
-					topic.publish('/launcher/download/progress', launcher, progress);
+				var tunnel = new Tunnel(config.tunnelOptions);
+				tunnel.on('downloadprogress', function (progress) {
+					topic.publish('/tunnel/download/progress', tunnel, progress);
 				});
-				launcher.on('status', function (status) {
-					topic.publish('/launcher/status', launcher, status);
+				tunnel.on('status', function (status) {
+					topic.publish('/tunnel/status', tunnel, status);
 				});
 
 				if (!config.webdriver.username) {
 					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
 					// fix the restriction, then fix this.
-					var auth = launcher.clientAuth.split(':');
+					var auth = tunnel.clientAuth.split(':');
 					config.webdriver.username = auth[0];
 					config.webdriver.password = auth[1];
 				}
 
-				config.capabilities = lang.deepCopy(launcher.extraCapabilities, config.capabilities);
+				config.capabilities = lang.deepCopy(tunnel.extraCapabilities, config.capabilities);
 
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = Array.prototype.slice.call(arguments, 1).reduce(function (map, reporter, i) {
@@ -258,7 +258,7 @@ else {
 							function endSession() {
 								topic.publish('/session/end', remote);
 
-								return launcher.sendJobState(remote.session.sessionId, {
+								return tunnel.sendJobState(remote.session.sessionId, {
 									success: suite.numFailedTests === 0 && !suite.error
 								});
 							}
@@ -275,8 +275,8 @@ else {
 					main.suites.push(suite);
 				});
 
-				topic.publish('/launcher/start', launcher);
-				launcher.start().then(function () {
+				topic.publish('/tunnel/start', tunnel);
+				tunnel.start().then(function () {
 					require(config.functionalSuites || [], function () {
 						topic.publish('/runner/start');
 						main.run().always(function () {
@@ -287,8 +287,8 @@ else {
 							proxy.close();
 							reporterManager.clear();
 
-							return launcher.stop().then(function () {
-								topic.publish('/launcher/stop', launcher);
+							return tunnel.stop().then(function () {
+								topic.publish('/tunnel/stop', tunnel);
 							});
 						}).otherwise(function (error) {
 							console.error(error.stack || error);

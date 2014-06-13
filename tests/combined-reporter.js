@@ -35,16 +35,16 @@ define([
 			util.logError(error);
 		},
 
-		'/launcher/start': function () {
-			console.log('Starting launcher');
+		'/tunnel/start': function () {
+			console.log('Starting tunnel');
 		},
 
-		'/launcher/download/progress': function (launcher, progress) {
+		'/tunnel/download/progress': function (tunnel, progress) {
 			console.log('Download ' + (progress.received / progress.total * 100) + '% complete');
 		},
 
-		'/launcher/status': function (launcher, status) {
-			console.log('Launcher: ' + status);
+		'/tunnel/status': function (tunnel, status) {
+			console.log('Tunnel: ' + status);
 		},
 
 		'/test/fail': function (test) {

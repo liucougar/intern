@@ -4,7 +4,6 @@ define([
 	'require',
 	'../../main',
 	'../../lib/args',
-	// TODO: Break out the createPromise function from leadfoot utilities
 	'dojo/Deferred'
 ], function (registerSuite, assert, require, main, args, Deferred) {
 	registerSuite({

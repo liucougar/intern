@@ -31,8 +31,8 @@ define({
 	// Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
 	maxConcurrency: 3,
 
-	// Whether or not to start Sauce Connect before running tests
-	launcher: 'SauceLabsLauncher',
+	// The name of the tunnel class that will be used to connect to the WebDriver service
+	tunnel: 'SauceLabsTunnel',
 
 	webdriver: {
 		hostname: 'localhost',
@@ -53,13 +53,7 @@ define({
 	],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: [
-		'intern-selftest/tests/functional/lib/leadfoot/Server',
-		'intern-selftest/tests/functional/lib/leadfoot/Session',
-		'intern-selftest/tests/functional/lib/leadfoot/ProxiedSession',
-		'intern-selftest/tests/functional/lib/leadfoot/Element',
-		'intern-selftest/tests/functional/lib/leadfoot/Command'
-	],
+	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^(?:tests|node_modules)\//,
