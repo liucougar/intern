@@ -268,7 +268,7 @@ else {
 								return endSession();
 							}
 
-							return remote.quit().always(endSession);
+							return remote.quit().finally(endSession);
 						}
 					});
 
